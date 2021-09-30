@@ -1,7 +1,12 @@
-from app import database
+from app import database, login_manager
 from app import bcrypt
+from flask_login import UserMixin
 
-class Usuario(database.Model):
+@login_manager.user_loader
+def load_user(id):
+    return Usuario.query.get(int(id))
+
+class Usuario(database.Model, UserMixin):
     
     __tablename__ = 'usuarios'
     
@@ -25,10 +30,6 @@ class Usuario(database.Model):
     @staticmethod
     def get_all():
         return Usuario.query.all()
-    
-    @staticmethod
-    def get_id():
-        return Usuario.query.filter_by(id=7).first()
     
     @staticmethod
     def get_email(email_find):

@@ -1,0 +1,21 @@
+{% extends "base-NoHeader.html" %}
+{% block content %}
+<main class="form-signin text-center login">
+    <form action="" method="post">
+      <img class="mb-4" src="{{ url_for('static',filename='img/logo.png') }}" alt="" width="72" height="57">
+      <h1 class="h3 mb-3 fw-normal">Iniciar sesión</h1>
+    
+      {# This hidden_tag is a CSRF security feature. #}
+      {{ form.csrf_token }}
+      {{ form.email.label }}
+        <div class="form-floating">
+            {{ form.email(class_="form-control emailField") }}
+        </div>
+        <div class="form-floating"></div>
+      {{ form.password.label }} {{ form.password(class_="form-control lastFieldForm") }}
+    </div>
+      {{ form.submit(class_="w-100 btn btn-lg btn-primary") }}
+      
+    </form>
+  </main>
+{% endblock %}
