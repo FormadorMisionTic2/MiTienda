@@ -2,8 +2,8 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from flask import render_template, request, redirect, url_for
-from flask_login import login_user, login_required, LoginManager
+from flask import render_template, request, redirect, url_for, session
+from flask_login import current_user, login_user, login_required, LoginManager, logout_user
 
 login_manager = LoginManager()
 
@@ -18,6 +18,7 @@ bcrypt = Bcrypt(app)
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
+
 from models.rol import Rol
 from models.usuario import Usuario
 from models.producto import Producto
@@ -26,7 +27,6 @@ from forms import LoginForm
 @app.route("/")
 def index():
     productos = Producto.get_all()
-    print(productos)
     return render_template("index.html",products=productos)
 
 @app.route("/register", methods=["GET","POST"])
@@ -74,3 +74,19 @@ def login():
 def carrito():
     return render_template("carrito.html")
 
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("index"))
+
+@app.route("/add/<string:id>")
+@login_required
+def add_product(id):
+    if("cart" in session):
+        carrito = session["cart"]
+        carrito.append(id)
+        session["cart"] = carrito
+    else:
+        session["cart"] = [id]
+    return redirect(url_for("index"))

@@ -15,7 +15,7 @@
                 <div class="card-body">
                 <h5 class="card-title">{{ product.nombre }}</h5>
                 <p class="card-text">{{product.descripcion}}</p>
-                <a href="#" class="btn btn-primary">${{product.precio}}</a>
+                <a href="{{ url_for('add_product', id=product.id) }}" class="btn btn-primary">${{product.precio}}</a>
                 </div>
             </div>
         </div>
