@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask import render_template, request, redirect, url_for, session
 from flask_login import current_user, login_user, login_required, LoginManager, logout_user
+import redis
 
 login_manager = LoginManager()
 
@@ -12,6 +13,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://viutzficoufmpa:c0d7d5f9df1
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.urandom(32)
 
+redistogo_url = os.getenv('REDISTOGO_URL', None)
+if redistogo_url == None:
+    redis_url = '127.0.0.1:6379'
+else:
+    redis_url = redistogo_url
+    redis_url = redis_url.split('redis://redistogo:')[1]
+    redis_url = redis_url.split('/')[0]
+    REDIS_PWD, REDIS_HOST = redis_url.split('@', 1)
+    redis_url = "%s?password=%s" % (REDIS_HOST, REDIS_PWD)
+session_opts = { 'session.type': 'redis', 'session.url': redis_url, 'session.data_dir': './cache/', 'session.key': 'appname', 'session.auto': True, }
+r = redis.Redis(redistogo_url)
 
 database = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
@@ -84,12 +96,12 @@ def logout():
 @app.route("/add/<string:id>")
 @login_required
 def add_product(id):
-    if("cart" in session):
-        carrito = session["cart"]
+    if(r.get('cart')):
+        carrito = r.get('cart')
         carrito.append(id)
-        session["cart"] = carrito
+        r.set("cart", carrito)
     else:
-        session["cart"] = [id]
+        r.set("cart", [id])
     return redirect(url_for("index"))
 
 if __name__ == '__main__':
