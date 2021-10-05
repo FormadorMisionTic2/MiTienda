@@ -4,7 +4,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask import render_template, request, redirect, url_for, session
 from flask_login import current_user, login_user, login_required, LoginManager, logout_user
+from urllib.parse import urlparse
 import redis
+import json
+from flask_session import Session
 
 login_manager = LoginManager()
 
@@ -13,24 +16,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://viutzficoufmpa:c0d7d5f9df1
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.urandom(32)
 
-redistogo_url = os.getenv('REDISTOGO_URL', None)
-if redistogo_url == None:
-    redis_url = '127.0.0.1:6379'
-else:
-    redis_url = redistogo_url
-    redis_url = redis_url.split('redis://redistogo:')[1]
-    redis_url = redis_url.split('/')[0]
-    REDIS_PWD, REDIS_HOST = redis_url.split('@', 1)
-    redis_url = "%s?password=%s" % (REDIS_HOST, REDIS_PWD)
-session_opts = { 'session.type': 'redis', 'session.url': redis_url, 'session.data_dir': './cache/', 'session.key': 'appname', 'session.auto': True, }
-r = redis.Redis(redistogo_url)
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_USE_SIGNER'] = True
+app.config['SESSION_REDIS'] = redis.from_url('redis://:p70f7a0d0361fc515e57528b832a4e7010b8b4d96a966c4cd2680a0b9be3dc3d1@ec2-52-5-85-232.compute-1.amazonaws.com:7870')
 
 database = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
 login_manager.init_app(app)
 login_manager.login_view = "login"
-
+server_session = Session(app)
 
 from models.rol import Rol
 from models.usuario import Usuario
@@ -96,12 +92,14 @@ def logout():
 @app.route("/add/<string:id>")
 @login_required
 def add_product(id):
-    if(r.get('cart')):
-        carrito = r.get('cart')
+    if('cart' in session):
+        cart = session['cart']
+        print(cart)
+        carrito = json.loads(cart.decode('utf-8'))
         carrito.append(id)
-        r.set("cart", carrito)
+        session['cart'] = carrito
     else:
-        r.set("cart", [id])
+        session['cart'] = [id]
     return redirect(url_for("index"))
 
 if __name__ == '__main__':

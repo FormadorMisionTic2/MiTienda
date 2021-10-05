@@ -36,9 +36,9 @@
                 <li class="nav-item me-2">
                   <a class="btn btn-primary position-relative" href="{{url_for('carrito')}}">
                     Carrito
-                    {% if "cart" in session%}
+                    {% if session['cart'] %}
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                      {{  r.get('cart')|length }}
+                      {{  session['cart']|length }}
                     </span>
                     {% endif %}
                   </a>
