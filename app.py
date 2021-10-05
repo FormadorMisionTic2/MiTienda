@@ -20,7 +20,9 @@ app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_USE_SIGNER'] = True
 url = urlparse('rediss://:p70f7a0d0361fc515e57528b832a4e7010b8b4d96a966c4cd2680a0b9be3dc3d1@ec2-52-5-85-232.compute-1.amazonaws.com:7870')
-app.config['SESSION_REDIS'] = redis.Redis(host=url.hostname, port=url.port, username=url.username, password=url.password, ssl=True, ssl_cert_reqs=None)
+pool = redis.ConnectionPool(host=url.hostname, port=url.port, username=url.username, password=url.password, ssl=True, ssl_cert_reqs=None, db=1,health_check_interval=30)
+rd = redis.Redis(connection_pool=pool,)
+app.config['SESSION_REDIS'] = redis.Redis(host=url.hostname, port=url.port, username=url.username, password=url.password, ssl=True, ssl_cert_reqs=None, db=1,health_check_interval=30)
 
 database = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
