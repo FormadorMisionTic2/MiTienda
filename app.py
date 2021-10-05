@@ -19,8 +19,7 @@ app.config['SECRET_KEY'] = os.urandom(32)
 app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_USE_SIGNER'] = True
-url = urlparse('redis://:p70f7a0d0361fc515e57528b832a4e7010b8b4d96a966c4cd2680a0b9be3dc3d1@ec2-52-5-85-232.compute-1.amazonaws.com:7870')
-app.config['SESSION_REDIS'] = redis.Redis(host=url.hostname, port=url.port, username=url.username, password=url.password, ssl=True, ssl_cert_reqs=None)
+app.config['SESSION_REDIS'] = redis.from_url('redis://:p70f7a0d0361fc515e57528b832a4e7010b8b4d96a966c4cd2680a0b9be3dc3d1@ec2-52-5-85-232.compute-1.amazonaws.com:7870')
 
 database = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
