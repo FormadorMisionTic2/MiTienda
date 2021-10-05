@@ -4,9 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask import render_template, request, redirect, url_for, session
 from flask_login import current_user, login_user, login_required, LoginManager, logout_user
-from urllib.parse import urlparse
-import redis
-import json
 from flask_session import Session
 
 login_manager = LoginManager()
@@ -18,12 +15,8 @@ app.config['SECRET_KEY'] = os.urandom(32)
 
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
-#app.config['SESSION_USE_SIGNER'] = True
-
 
 database = SQLAlchemy(app)
-app.config['SESSION_SQLALCHEMY'] = database
-
 bcrypt = Bcrypt(app)
 
 login_manager.init_app(app)
